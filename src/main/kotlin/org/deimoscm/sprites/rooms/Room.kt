@@ -1,18 +1,12 @@
-package org.deimoscm.sprites
+package org.deimoscm.sprites.rooms
 
 import marodi.component.Sprite
 import marodi.control.Game
-import marodi.physics.Hitbox
 import org.deimoscm.App
 
-abstract class Entity : Sprite() {
-
-    var width: Float = 0f
-    var height: Float = 0f
-
+abstract class Room : Sprite() {
     override fun start(game: Game) {
         start(game as App)
-        hitbox = arrayOf(Hitbox(width, height, 0f, 0f))
     }
 
     abstract fun start(app: App)

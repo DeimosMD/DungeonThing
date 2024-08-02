@@ -1,15 +1,12 @@
 package org.deimoscm.sprites
 
 import org.deimoscm.App
+import org.deimoscm.Difficulty
 import java.awt.Color
 
 class MediumButton : MenuButton() {
     override fun onPress(app: App) {
-
-    }
-
-    override fun update(app: App) {
-        super.update(app)
+        app.startGame(Difficulty.MEDIUM)
     }
 
     override fun start(app: App) {
