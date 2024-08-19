@@ -1,4 +1,4 @@
-package org.deimoscm.sprites
+package org.deimoscm.sprites.characters
 
 import org.deimoscm.App
 import java.awt.Color

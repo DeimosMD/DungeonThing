@@ -1,4 +1,6 @@
-package org.deimoscm.sprites
+package org.deimoscm.sprites.characters
+
+import org.deimoscm.sprites.Entity
 
 abstract class Character : Entity() {
 
