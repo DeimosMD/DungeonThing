@@ -9,10 +9,13 @@ class Player : Character() {
         width = 48f
         height = 48f
         setResistance(0.9995f)
+        maxHealth = 10.0
+        health = 10.0
     }
 
     override fun draw(app: App) {
         app.camera.drawRect(width, height, Color.BLUE, this)
+        drawHealthBar(app, 60f, 10f, Color.RED, width/2, height+20)
     }
 
     override fun update(app: App) {

@@ -11,14 +11,14 @@ import java.awt.Color
 import kotlin.math.ceil
 
 class Door (
-    private val x1: Float,
-    private val y1: Float,
+    val x1: Float,
+    val y1: Float,
     private val direction: Direction,
     private val room: Room
 ) : Sprite() {
 
-    private val x2: Float
-    private val y2: Float
+    val x2: Float
+    val y2: Float
 
     var destination: Room? = null
 
@@ -172,7 +172,7 @@ class Door (
         app.foregroundDrawList.add(drawable)
     }
 
-    private fun ensureDestination(app: App) {
+    fun ensureDestination(app: App) {
         if (destination == null) {
             when (direction) {
                 Direction.UP -> {

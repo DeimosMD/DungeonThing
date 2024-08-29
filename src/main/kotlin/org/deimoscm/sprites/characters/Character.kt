@@ -1,10 +1,13 @@
 package org.deimoscm.sprites.characters
 
+import org.deimoscm.App
 import org.deimoscm.sprites.Entity
+import java.awt.Color
 
 abstract class Character : Entity() {
 
-    var health = 1
+    var health = 1.0
+    var maxHealth = 1.0
     val isAlive get() = health > 0
     val isDead get() = health <= 0
     var facingLeft = false
@@ -37,5 +40,13 @@ abstract class Character : Entity() {
         } else if (right && !left) {
             facingLeft = false
         }
+    }
+
+    // draws the health bar centered at the character's position and offset by a certain amount
+    fun drawHealthBar(app: App, w: Float, h: Float, color: Color, xOffset: Float, yOffset: Float) {
+        val dx = x+xOffset-w/2
+        val dy = y+yOffset-h/2
+        app.camera.drawRect(w, h, Color.BLACK, dx, dy)
+        app.camera.drawRect((w*(health/maxHealth)).toFloat(), h, color, dx, dy)
     }
 }

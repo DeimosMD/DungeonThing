@@ -9,6 +9,7 @@ import marodi.physics.Direction
 import org.deimoscm.sprites.PlayButton
 import org.deimoscm.sprites.characters.Player
 import org.deimoscm.sprites.Title
+import org.deimoscm.sprites.characters.BasicEnemy
 import org.deimoscm.sprites.map.StartingRoom
 
 class App : Game() {
@@ -20,6 +21,7 @@ class App : Game() {
         runtimeSettings.isResizable = true
         runtimeSettings.drawFromCenter = true
         runtimeSettings.windowTitle = "Dungeon Thing"
+        runtimeSettings.isPrintFramesPerSecond = true
     }
 
     override fun launch() {
