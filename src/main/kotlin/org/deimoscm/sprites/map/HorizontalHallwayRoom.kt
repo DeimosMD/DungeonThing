@@ -9,6 +9,10 @@ class HorizontalHallwayRoom : Room() {
 
     init {
         setDoors()
+        interiorW = 700f
+        interiorH = 200f
+        interiorOX = -350f
+        interiorOY = -100f
     }
 
     override fun start(app: App) {

@@ -9,19 +9,19 @@ import marodi.physics.Direction
 import org.deimoscm.sprites.PlayButton
 import org.deimoscm.sprites.characters.Player
 import org.deimoscm.sprites.Title
-import org.deimoscm.sprites.characters.BasicEnemy
 import org.deimoscm.sprites.map.StartingRoom
 
 class App : Game() {
 
     var difficulty: Difficulty? = null
     val player = Player()
+    val mapManager = MapManager(StartingRoom())
 
     init {
         runtimeSettings.isResizable = true
         runtimeSettings.drawFromCenter = true
         runtimeSettings.windowTitle = "Dungeon Thing"
-        runtimeSettings.isPrintFramesPerSecond = true
+        //runtimeSettings.isPrintFramesPerSecond = true
     }
 
     override fun launch() {
@@ -33,12 +33,14 @@ class App : Game() {
 
     fun startGame(difficulty: Difficulty) {
         this.difficulty = difficulty
+        mapManager.currentRoom.ensureAllDoorDestinations(this)
         queueRunnable(object : MarodiRunnable {
                 override fun run() {
+                    updateList.add(mapManager)
                     backgroundDrawList.removeAllElements()
                     currentWorld = World()
                     currentWorld.add(player)
-                    currentWorld.add(StartingRoom())
+                    currentWorld.add(mapManager.currentRoom)
                     physics.collisionHandler.addRelation(
                         Class.forName("org.deimoscm.sprites.map.Room"),
                         Class.forName("org.deimoscm.sprites.characters.Character"),

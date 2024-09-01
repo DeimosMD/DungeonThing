@@ -99,16 +99,28 @@ class Door (
         if (app.player.isTouchingArea(x1, x2, y1, y2)) {
             when (direction) {
                 Direction.UP -> {
-                    app.statDraw.color = Color(0, 0, 0, ceil((app.player.y - y1 + app.player.height) / (y2 - y1 + app.player.height) * 255).toInt())
+                    app.statDraw.color = Color(
+                        0, 0, 0,
+                        ceil((app.player.y - y1 + app.player.height) / (y2 - y1 + app.player.height) * 255).toInt()
+                    )
                 }
                 Direction.DOWN -> {
-                    app.statDraw.color = Color(0, 0, 0, ceil((y2 - app.player.y) / (y2 - y1 + app.player.height) * 255).toInt())
+                    app.statDraw.color = Color(
+                        0, 0, 0,
+                        ceil((y2 - app.player.y) / (y2 - y1 + app.player.height) * 255).toInt()
+                    )
                 }
                 Direction.LEFT -> {
-                    app.statDraw.color = Color(0,0,0, ceil((x2-app.player.x)/(x2-x1+app.player.width)*255).toInt())
+                    app.statDraw.color = Color(
+                        0,0,0,
+                        ceil((x2-app.player.x)/(x2-x1+app.player.width)*255).toInt()
+                    )
                 }
                 Direction.RIGHT -> {
-                    app.statDraw.color = Color(0,0,0, ceil((app.player.x-x1+app.player.width)/(x2-x1+app.player.width)*255).toInt())
+                    app.statDraw.color = Color(
+                        0,0,0,
+                        ceil((app.player.x-x1+app.player.width)/(x2-x1+app.player.width)*255).toInt()
+                    )
                 }
                 else -> {}
             }
@@ -149,13 +161,11 @@ class Door (
 
     override fun start(game: Game) {}
 
+    // destination should be initialized by the time this is called
     private fun onEnter(app: App) {
-        ensureDestination(app)
-        room.queueRemoveSprites(app, true)
-        room.queueRemoveNeighbors(app)
-        destination!!.queueAddSprites(app, true)
-        destination!!.queueAddNeighbors(app)
         app.camera.setPos(destination)
+        app.mapManager.currentRoom = destination!!
+        destination!!.ensureAllDoorDestinations(app)
         val drawable = object : Drawable {
             override fun draw(game: Game) {
                 app.statDraw.color = Color(0,0,0,255)
@@ -172,6 +182,7 @@ class Door (
         app.foregroundDrawList.add(drawable)
     }
 
+    // is called when door is loaded
     fun ensureDestination(app: App) {
         if (destination == null) {
             when (direction) {

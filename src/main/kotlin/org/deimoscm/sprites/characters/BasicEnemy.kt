@@ -21,6 +21,5 @@ class BasicEnemy : Character() {
 
     override fun update(app: App) {
         move(1000f, app.frameProportion, up=true, down=false, left=false, right=false)
-        println("a")
     }
 }

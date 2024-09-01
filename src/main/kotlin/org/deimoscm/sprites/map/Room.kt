@@ -2,10 +2,8 @@ package org.deimoscm.sprites.map
 
 import marodi.component.Sprite
 import marodi.control.Game
-import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import org.deimoscm.sprites.characters.Character
-import org.deimoscm.sprites.characters.Player
 
 abstract class Room : Sprite() {
 
@@ -15,65 +13,146 @@ abstract class Room : Sprite() {
     var rightDoor: Door? = null
 
     var characters: ArrayList<Character> = ArrayList()
+    var inactiveCharacters: ArrayList<Character> = ArrayList() // added to characters when room is entered
 
-    fun load(app: App) {
-        if (bottomDoor != null) app.currentWorld.add(bottomDoor!!)
-        if (topDoor != null) app.currentWorld.add(topDoor!!)
-        if (leftDoor != null) app.currentWorld.add(leftDoor!!)
-        if (rightDoor != null) app.currentWorld.add(rightDoor!!)
-    }
-
-    fun queueRemoveSprites(app: App, isMainRoom: Boolean) {
-        val room = this
-        app.queueRunnable(object : MarodiRunnable {
-            override fun run() {
-                app.currentWorld.removeAll(characters.toSet())
-                if (isMainRoom) {
-                    if (bottomDoor != null) app.currentWorld.remove(bottomDoor!!)
-                    if (topDoor != null) app.currentWorld.remove(topDoor!!)
-                    if (leftDoor != null) app.currentWorld.remove(leftDoor!!)
-                    if (rightDoor != null) app.currentWorld.remove(rightDoor!!)
-                }
-                app.currentWorld.remove(room)
-            }
-        })
-    }
-
-    fun queueAddSprites(app: App, isMainRoom: Boolean) {
-        val room = this
-        isVisible = isMainRoom
-        app.queueRunnable(object : MarodiRunnable {
-            override fun run() {
-                app.currentWorld.addAll(characters.toSet())
-                if (isMainRoom)
-                    load(app)
-                app.currentWorld.add(room)
-            }
-        })
-    }
-
-    fun queueAddNeighbors(app: App) {
-        leftDoor?.destination?.queueAddSprites(app, false)
-        rightDoor?.destination?.queueAddSprites(app, false)
-        topDoor?.destination?.queueAddSprites(app, false)
-        bottomDoor?.destination?.queueAddSprites(app, false)
-    }
-
-    fun queueRemoveNeighbors(app: App) {
-        leftDoor?.destination?.queueRemoveSprites(app, false)
-        rightDoor?.destination?.queueRemoveSprites(app, false)
-        topDoor?.destination?.queueRemoveSprites(app, false)
-        bottomDoor?.destination?.queueRemoveSprites(app, false)
-    }
+    var interiorW = 0.0f
+    var interiorH = 0.0f
+    var interiorOX = 0.0f
+    var interiorOY = 0.0f
 
     override fun start(game: Game) {
         start(game as App)
         depth = 10f
-        game.queueRunnable(object : MarodiRunnable {
-            override fun run() {
-                load(game)
+    }
+
+    // moves characters to what rooms they supposed to be in based on their physical locations
+    fun checkCharacterLocations() {
+
+        // checks doors with a specific character and adds to door's room if necessary
+        fun checkDoors(ch: Character): Boolean {
+            for (door in arrayOf(bottomDoor, topDoor, leftDoor, rightDoor))
+                if (door != null)
+                    if (door.destination!!.isInHere(ch)) {
+                        door.destination!!.characters.add(ch)
+                        return true
+                    }
+            return false
+        }
+
+        // used to keep track of the most recent room any character has been in
+        // is used when a character is not currently physically in any room
+        val recentRoomMap: HashMap<Character, Room> = HashMap()
+        // chList is all characters that are in currently loaded rooms
+        // removes characters from this room and adds them to chList
+        val chList: ArrayList<Character> = ArrayList(characters)
+        characters.clear()
+        // removes characters from all neighboring rooms and adds them to chList
+        // if changes are necessary, consider reimplementing as for loop before making changes
+        if (bottomDoor != null) {
+            val bottomChList = bottomDoor!!.destination!!.characters
+            chList.addAll(bottomChList)
+            for (ch in bottomChList)
+                recentRoomMap.put(ch, bottomDoor!!.destination!!)
+            bottomChList.clear()
+        }
+        if (topDoor != null) {
+            val topChList = topDoor!!.destination!!.characters
+            chList.addAll(topChList)
+            for (ch in topChList)
+                recentRoomMap.put(ch, topDoor!!.destination!!)
+            topChList.clear()
+        }
+        if (leftDoor != null) {
+            val leftChList = leftDoor!!.destination!!.characters
+            chList.addAll(leftChList)
+            for (ch in leftChList)
+                recentRoomMap.put(ch, leftDoor!!.destination!!)
+            leftChList.clear()
+        }
+        if (rightDoor != null) {
+            val rightChList = rightDoor!!.destination!!.characters
+            chList.addAll(rightChList)
+            for (ch in rightChList)
+                recentRoomMap.put(ch, rightDoor!!.destination!!)
+            rightChList.clear()
+        }
+        // checks locations of characters and adds them to appropriate rooms
+        for (ch in chList) {
+            if (isInHere(ch)) {
+                characters.add(ch)
+                continue
             }
-        })
+            if (checkDoors(ch))
+                continue
+            // if it's not currently in any room, it just goes in its most recent room
+            // is added into inactiveCharacters so it does not update while outside a room
+            if (recentRoomMap.contains(ch))
+                recentRoomMap.get(ch)!!.inactiveCharacters.add(ch)
+        }
+    }
+
+    // loads room with doors and characters, and loads neighboring rooms with their characters (but not doors)
+    // makes only current room and its doors and characters visible, other room's stuff will be invisible
+    fun loadSprites(app: App) {
+        // adds this room and it's characters
+        app.currentWorld.add(this)
+        isVisible = true
+        characters += inactiveCharacters
+        inactiveCharacters = ArrayList()
+        for (ch in characters) {
+            app.currentWorld.add(ch)
+            ch.isVisible = true
+        }
+        // adds neighboring rooms and their characters and this room's doors
+        for (door in arrayOf(bottomDoor, topDoor, leftDoor, rightDoor))
+            if (door != null) {
+                app.currentWorld.add(door)
+                door.isVisible = true
+                app.currentWorld.add(door.destination!!)
+                door.destination!!.isVisible = false
+                for (ch in door.destination!!.characters) {
+                    app.currentWorld.add(ch)
+                    ch.isVisible = false
+                }
+            }
+    }
+
+    // checks whether the given character is touching the interior or any of the doors
+    private fun isInHere(ch: Character): Boolean {
+        if (bottomDoor != null)
+            if (
+                ch.isTouchingArea(bottomDoor!!.x1, bottomDoor!!.x2, bottomDoor!!.y1, bottomDoor!!.y2)
+                ) return true
+
+        if (topDoor != null)
+            if (
+                ch.isTouchingArea(topDoor!!.x1, topDoor!!.x2, topDoor!!.y1, topDoor!!.y2)
+                ) return true
+
+        if (leftDoor != null)
+            if (
+                ch.isTouchingArea(leftDoor!!.x1, leftDoor!!.x2, leftDoor!!.y1, leftDoor!!.y2)
+                ) return true
+
+        if (rightDoor != null)
+            if (
+                ch.isTouchingArea(rightDoor!!.x1, rightDoor!!.x2, rightDoor!!.y1, rightDoor!!.y2)
+                ) return true
+
+        return ch.isTouchingArea(
+            x+interiorOX,
+            x+interiorOX+interiorW,
+            y+interiorOY,
+            y+interiorOY+interiorH
+        )
+    }
+
+    // ensures all doors have a destination
+    // called when a room is entered by the player
+    // and is called at the start of the game
+    fun ensureAllDoorDestinations(app: App) {
+        for (door in arrayOf(bottomDoor, topDoor, leftDoor, rightDoor))
+            door?.ensureDestination(app)
     }
 
     abstract fun start(app: App)
@@ -86,9 +165,6 @@ abstract class Room : Sprite() {
 
     override fun update(game: Game) {
         val app = game as App
-        if (isVisible) {
-            checkEntityLocations(app)
-        }
         update(app)
     }
 
@@ -104,46 +180,7 @@ abstract class Room : Sprite() {
         setDoors()
     }
 
+    // is called when a room is initialized
+    // and called a second time when its position is adjusted in Door.ensureDestination
     abstract fun setDoors()
-
-    // checks if an entity has left its current room, and if so changes it's visibility and the room's entity list
-    private fun checkEntityLocations(app: App) {
-        for (ch in app.activePhysicalPositionals)
-            if (ch is Character && ch !is Player && ch.hitbox.isNotEmpty()) {
-                ch.isVisible = true
-                characters.add(ch)
-                leftDoor?.destination?.characters?.remove(ch)
-                rightDoor?.destination?.characters?.remove(ch)
-                topDoor?.destination?.characters?.remove(ch)
-                bottomDoor?.destination?.characters?.remove(ch)
-                if (leftDoor != null)
-                    if (leftDoor!!.x1 >= ch.maxX) {
-                        ch.isVisible = false
-                        characters.remove(ch)
-                        leftDoor!!.ensureDestination(app)
-                        leftDoor!!.destination?.characters?.add(ch)
-                    }
-                if (rightDoor != null)
-                    if (rightDoor!!.x2 <= ch.minX) {
-                        ch.isVisible = false
-                        characters.remove(ch)
-                        rightDoor!!.ensureDestination(app)
-                        rightDoor!!.destination?.characters?.add(ch)
-                    }
-                if (bottomDoor != null)
-                    if (bottomDoor!!.y1 >= ch.maxY) {
-                        ch.isVisible = false
-                        characters.remove(ch)
-                        bottomDoor!!.ensureDestination(app)
-                        bottomDoor!!.destination?.characters?.add(ch)
-                    }
-                if (topDoor != null)
-                    if (topDoor!!.y2 <= ch.minY) {
-                        ch.isVisible = false
-                        characters.remove(ch)
-                        topDoor!!.ensureDestination(app)
-                        topDoor!!.destination?.characters?.add(ch)
-                    }
-            }
-    }
 }

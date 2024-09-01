@@ -11,6 +11,10 @@ class StartingRoom : Room() {
 
     init {
         setDoors()
+        interiorW = 500f
+        interiorH = 500f
+        interiorOX = -250f
+        interiorOY = -250f
     }
 
     override fun start(app: App) {
