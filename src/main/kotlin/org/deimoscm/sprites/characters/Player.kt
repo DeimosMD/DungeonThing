@@ -23,6 +23,9 @@ class Player : Character() {
         val down = app.keyHandler.isPressed((KeyEvent.VK_S))
         val left = app.keyHandler.isPressed(KeyEvent.VK_A)
         val right = app.keyHandler.isPressed(KeyEvent.VK_D)
-        move(2000f, app.frameProportion, up, down, left, right)
+        if (app.keyHandler.isBeginPress(KeyEvent.VK_SHIFT) && overallVelo <= 280)
+            move(75000f, app.frameProportion, up, down, left, right)
+        else
+            move(2000f, app.frameProportion, up, down, left, right)
     }
 }
