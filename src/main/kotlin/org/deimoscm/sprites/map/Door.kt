@@ -185,7 +185,7 @@ class Door (
     // is called when door is loaded
     fun ensureDestination(app: App) {
         if (destination == null) {
-            generateAppropriateRoom(app)
+            generateAppropriateRoom()
             when (direction) {
                 Direction.UP -> {
                     destination!!.x = x1 - destination!!.bottomDoor!!.x1
@@ -213,9 +213,11 @@ class Door (
         }
     }
 
-    private fun generateAppropriateRoom(app: App) {
+    private fun generateAppropriateRoom() {
         var gen: Room? = null
-        if (room.root == 0 || Math.random() < 0.5)
+        // second room is always a four-way room
+        // third room is always a hallway
+        if ((room.root == 0 || Math.random() < 0.5) && room.root != 1)
             gen = FourWayRoom()
         else
             when (direction) {
