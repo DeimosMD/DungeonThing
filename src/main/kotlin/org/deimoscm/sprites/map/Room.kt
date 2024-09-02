@@ -20,6 +20,9 @@ abstract class Room : Sprite() {
     var interiorOX = 0.0f
     var interiorOY = 0.0f
 
+    // how far away this room is from the starting room
+    var root: Int = 0
+
     override fun start(game: Game) {
         start(game as App)
         depth = 10f

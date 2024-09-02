@@ -185,47 +185,48 @@ class Door (
     // is called when door is loaded
     fun ensureDestination(app: App) {
         if (destination == null) {
+            generateAppropriateRoom(app)
             when (direction) {
                 Direction.UP -> {
-                    destination = generateAppropriateRoom()
                     destination!!.x = x1 - destination!!.bottomDoor!!.x1
                     destination!!.y = y2 - destination!!.bottomDoor!!.y1 + app.player.height
                     destination!!.bottomDoor!!.destination = room
                 }
                 Direction.DOWN -> {
-                    destination = generateAppropriateRoom()
                     destination!!.x = x1 - destination!!.topDoor!!.x1
                     destination!!.y = y1 - destination!!.topDoor!!.y2 - app.player.height
                     destination!!.topDoor!!.destination = room
                 }
                 Direction.LEFT -> {
-                    destination = generateAppropriateRoom()
                     destination!!.x = x1 - destination!!.rightDoor!!.x2 - app.player.width
                     destination!!.y = y1 - destination!!.rightDoor!!.y1
                     destination!!.rightDoor!!.destination = room
                 }
                 Direction.RIGHT -> {
-                    destination = generateAppropriateRoom()
                     destination!!.x = x2 - destination!!.leftDoor!!.x1 + app.player.width
                     destination!!.y = y1 - destination!!.leftDoor!!.y1
                     destination!!.leftDoor!!.destination = room
                 }
                 else -> {}
             }
+            destination!!.root = room.root + 1
         }
     }
 
-    private fun generateAppropriateRoom(): Room {
-        if (Math.random() > 0.5)
+    private fun generateAppropriateRoom(app: App) {
+        var gen: Room? = null
+        if (room.root == 0 || Math.random() < 0.5)
+            gen = FourWayRoom()
+        else
             when (direction) {
                 Direction.UP, Direction.DOWN -> {
-                    return VerticalHallwayRoom()
+                    gen = VerticalHallwayRoom()
                 }
                 Direction.LEFT, Direction.RIGHT -> {
-                    return HorizontalHallwayRoom()
+                    gen = HorizontalHallwayRoom()
                 }
                 else -> {}
             }
-        return FourWayRoom()
+        destination = gen
     }
 }
