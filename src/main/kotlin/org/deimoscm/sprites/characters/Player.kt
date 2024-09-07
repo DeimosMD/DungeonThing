@@ -2,6 +2,7 @@ package org.deimoscm.sprites.characters
 
 import marodi.component.Drawable
 import marodi.control.Game
+import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import java.awt.Color
 import java.awt.event.KeyEvent
@@ -10,6 +11,7 @@ class Player : Character() {
 
     var energy: Float = 5f
     val maxEnergy: Float = 5f
+    var waitingToGetEnergy = false
 
     override fun start(app: App) {
         width = 48f
@@ -33,18 +35,32 @@ class Player : Character() {
 
     override fun draw(app: App) {
         app.camera.drawRect(width, height, Color.BLUE, this)
-        drawHealthBar(app, 60f, 10f, Color.RED, width/2, height+20)
+        drawHealthBar(app, 60f, 10f, Color.BLUE, width/2, height+20)
     }
 
     override fun update(app: App) {
+        updateHealthRegen(app, 0.75)
         val up = app.keyHandler.isPressed(KeyEvent.VK_W)
         val down = app.keyHandler.isPressed((KeyEvent.VK_S))
         val left = app.keyHandler.isPressed(KeyEvent.VK_A)
         val right = app.keyHandler.isPressed(KeyEvent.VK_D)
-        if (app.keyHandler.isBeginPress(KeyEvent.VK_SHIFT) && overallVelo <= 280 && energy > 0) {
+        if (
+            app.keyHandler.isBeginPress(KeyEvent.VK_SPACE) &&
+            energy >= 1 &&
+            (left || right || up || down)
+            ) {
             move(75000f, app.frameProportion, up, down, left, right)
             energy -= 1
         } else
             move(2000f, app.frameProportion, up, down, left, right)
+        if (energy < maxEnergy && !waitingToGetEnergy) {
+            waitingToGetEnergy = true
+            app.delayRunnableSec(object : MarodiRunnable {
+                override fun run() {
+                    waitingToGetEnergy = false
+                    energy++
+                }
+            }, 2.0)
+        }
     }
 }

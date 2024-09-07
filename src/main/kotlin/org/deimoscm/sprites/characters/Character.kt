@@ -1,5 +1,6 @@
 package org.deimoscm.sprites.characters
 
+import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import org.deimoscm.sprites.Entity
 import java.awt.Color
@@ -8,6 +9,7 @@ abstract class Character : Entity() {
 
     var health = 1.0
     var maxHealth = 1.0
+    private var waitingToRegen = false
     val isAlive get() = health > 0
     val isDead get() = health <= 0
     var facingLeft = false
@@ -48,5 +50,17 @@ abstract class Character : Entity() {
         val dy = y+yOffset-h/2
         app.camera.drawRect(w, h, Color.BLACK, dx, dy)
         app.camera.drawRect((w*(health/maxHealth)).toFloat(), h, color, dx, dy)
+    }
+
+    fun updateHealthRegen(app: App, timeSec: Double) {
+        if (health < maxHealth && !waitingToRegen) {
+            waitingToRegen = true
+            app.delayRunnableSec(object : MarodiRunnable {
+                override fun run() {
+                    waitingToRegen = false
+                    health++
+                }
+            }, timeSec)
+        }
     }
 }
