@@ -1,6 +1,7 @@
 package org.deimoscm.sprites.characters
 
 import marodi.control.MarodiRunnable
+import marodi.physics.Direction
 import org.deimoscm.App
 import org.deimoscm.sprites.Entity
 import java.awt.Color
@@ -13,6 +14,7 @@ abstract class Character : Entity() {
     val isAlive get() = health > 0
     val isDead get() = health <= 0
     var facingLeft = false
+    var directionVertical = Direction.NONE
 
     fun move(acc: Float, frameProportion: Float, up: Boolean, down: Boolean, left: Boolean, right: Boolean) {
         if (up && left && !right && !down) {
@@ -41,6 +43,13 @@ abstract class Character : Entity() {
             facingLeft = true
         } else if (right && !left) {
             facingLeft = false
+        }
+        directionVertical = if (down && !up) {
+            Direction.DOWN
+        } else if (up && !down) {
+            Direction.UP
+        } else {
+            Direction.NONE
         }
     }
 
