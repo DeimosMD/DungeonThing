@@ -14,6 +14,7 @@ class Player : Character() {
     var waitingToGetEnergy = false
     val meleeAttackCooldown = 0.75f
     var timeSinceLastMeleeAttack = meleeAttackCooldown
+    val meleeTimingForgiveness = 0.67f // a proportion of the cooldown, not an amount of time
 
     override fun start(app: App) {
         width = 48f
@@ -30,18 +31,23 @@ class Player : Character() {
                     ((energy/maxEnergy) * 800).toInt(),
                     50
                 )
-                app.statDraw.color = null
-
                 if (timeSinceLastMeleeAttack < meleeAttackCooldown) {
-                    app.statDraw.color = Color.ORANGE
+                    app.statDraw.color = Color.RED
                     app.statDraw.fillRect(
-                        app.graphicsPanel.width/2-400,
+                        app.graphicsPanel.width/2-800/2,
                         app.graphicsPanel.height-130,
                         ((timeSinceLastMeleeAttack/meleeAttackCooldown) * 800).toInt(),
                         15
                     )
-                    app.statDraw.color = null
+                    app.statDraw.color = Color.GREEN
+                    app.statDraw.fillRect(
+                        (app.graphicsPanel.width/2 - 800/2 + 800*meleeTimingForgiveness).toInt(),
+                        app.graphicsPanel.height-130,
+                        ((timeSinceLastMeleeAttack/meleeAttackCooldown - meleeTimingForgiveness) * 800).toInt(),
+                        15
+                    )
                 }
+                app.statDraw.color = null
             }
         })
     }
@@ -75,16 +81,20 @@ class Player : Character() {
                 }
             }, 2.0)
         }
-        if (app.keyHandler.isBeginPress(KeyEvent.VK_M) && timeSinceLastMeleeAttack > meleeAttackCooldown) {
-            var closestEnemy: Enemy? = null
-            for (ph in app.activePhysicalPositionals) {
-                if (ph is Enemy) {
-                    if (closestEnemy == null || (distanceTo(ph) < distanceTo(closestEnemy)))
-                        closestEnemy = ph
+        if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
+            if (timeSinceLastMeleeAttack > meleeAttackCooldown) {
+                var closestEnemy: Enemy? = null
+                for (ph in app.activePhysicalPositionals) {
+                    if (ph is Enemy) {
+                        if (closestEnemy == null || (distanceTo(ph) < distanceTo(closestEnemy)))
+                            closestEnemy = ph
+                    }
                 }
-            }
-            if (closestEnemy != null && distanceTo(closestEnemy) < 100) {
-                closestEnemy.health--
+                if (closestEnemy != null && distanceTo(closestEnemy) < 100) {
+                    closestEnemy.health--
+                    timeSinceLastMeleeAttack = 0f
+                }
+            } else if (timeSinceLastMeleeAttack < meleeAttackCooldown*meleeTimingForgiveness) {
                 timeSinceLastMeleeAttack = 0f
             }
         }
