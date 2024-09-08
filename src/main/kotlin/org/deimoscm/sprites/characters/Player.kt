@@ -83,7 +83,7 @@ class Player : Character() {
                         closestEnemy = ph
                 }
             }
-            if (closestEnemy != null && distanceTo(closestEnemy) < 150) {
+            if (closestEnemy != null && distanceTo(closestEnemy) < 100) {
                 closestEnemy.health--
                 timeSinceLastMeleeAttack = 0f
             }
