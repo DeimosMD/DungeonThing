@@ -12,13 +12,15 @@ class Player : Character() {
     var energy: Float = 5f
     val maxEnergy: Float = 5f
     var waitingToGetEnergy = false
+    val meleeAttackCooldown = 0.75f
+    var timeSinceLastMeleeAttack = meleeAttackCooldown
 
     override fun start(app: App) {
         width = 48f
         height = 48f
         setResistance(0.9995f)
-        maxHealth = 10.0
-        health = 10.0
+        maxHealth = 5.0
+        health = 5.0
         app.foregroundDrawList.add(object : Drawable {
             override fun draw(game: Game) {
                 app.statDraw.color = Color.BLUE
@@ -29,6 +31,17 @@ class Player : Character() {
                     50
                 )
                 app.statDraw.color = null
+
+                if (timeSinceLastMeleeAttack < meleeAttackCooldown) {
+                    app.statDraw.color = Color.ORANGE
+                    app.statDraw.fillRect(
+                        app.graphicsPanel.width/2-400,
+                        app.graphicsPanel.height-130,
+                        ((timeSinceLastMeleeAttack/meleeAttackCooldown) * 800).toInt(),
+                        15
+                    )
+                    app.statDraw.color = null
+                }
             }
         })
     }
@@ -39,7 +52,7 @@ class Player : Character() {
     }
 
     override fun update(app: App) {
-        updateHealthRegen(app, 0.75)
+        updateHealthRegen(app, 1.5)
         val up = app.keyHandler.isPressed(KeyEvent.VK_W)
         val down = app.keyHandler.isPressed((KeyEvent.VK_S))
         val left = app.keyHandler.isPressed(KeyEvent.VK_A)
@@ -62,7 +75,7 @@ class Player : Character() {
                 }
             }, 2.0)
         }
-        if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
+        if (app.keyHandler.isBeginPress(KeyEvent.VK_M) && timeSinceLastMeleeAttack > meleeAttackCooldown) {
             var closestEnemy: Enemy? = null
             for (ph in app.activePhysicalPositionals) {
                 if (ph is Enemy) {
@@ -72,7 +85,9 @@ class Player : Character() {
             }
             if (closestEnemy != null && distanceTo(closestEnemy) < 150) {
                 closestEnemy.health--
+                timeSinceLastMeleeAttack = 0f
             }
         }
+        timeSinceLastMeleeAttack += app.frameProportion
     }
 }
