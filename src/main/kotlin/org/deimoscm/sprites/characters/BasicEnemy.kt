@@ -22,6 +22,9 @@ class BasicEnemy : Character() {
     override fun update(app: App) {
         updateHealthRegen(app, 1.5)
         faceTowards(app.player)
-        accForward(1000f, app.frameProportion)
+        if (distanceTo(app.player) > 75f)
+            accForward(1000f, app.frameProportion)
+        else
+            accForward(-1000f, app.frameProportion)
     }
 }
