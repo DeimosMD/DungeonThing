@@ -3,7 +3,7 @@ package org.deimoscm.sprites.characters
 import org.deimoscm.App
 import java.awt.Color
 
-class BasicEnemy : Character() {
+class BasicEnemy : Enemy() {
 
     override fun start(app: App) {
         width = 48f
