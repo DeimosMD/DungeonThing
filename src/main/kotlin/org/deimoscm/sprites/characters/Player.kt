@@ -62,5 +62,17 @@ class Player : Character() {
                 }
             }, 2.0)
         }
+        if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
+            var closestEnemy: Enemy? = null
+            for (ph in app.activePhysicalPositionals) {
+                if (ph is Enemy) {
+                    if (closestEnemy == null || (distanceTo(ph) < distanceTo(closestEnemy)))
+                        closestEnemy = ph
+                }
+            }
+            if (closestEnemy != null && distanceTo(closestEnemy) < 150) {
+                closestEnemy.health--
+            }
+        }
     }
 }
