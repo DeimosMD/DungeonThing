@@ -3,6 +3,11 @@ package org.deimoscm.sprites.characters
 import marodi.component.Drawable
 import marodi.control.Game
 import marodi.control.MarodiRunnable
+import marodi.physics.CollisionFunctionType
+import marodi.physics.CollisionType
+import marodi.physics.Direction
+import marodi.physics.OnCollision
+import marodi.physics.PhysicalPositional
 import org.deimoscm.App
 import java.awt.Color
 import java.awt.event.KeyEvent
@@ -15,6 +20,9 @@ class Player : Character() {
     val meleeAttackCooldown = 0.75f
     var timeSinceLastMeleeAttack = meleeAttackCooldown
     val meleeTimingForgiveness = 0.67f // a proportion of the cooldown, not an amount of time
+    val dashDuration = 0.5f
+    var timeSinceLastDash = dashDuration
+    var enemiesHitDuringDash: ArrayList<Enemy> = ArrayList()
 
     override fun start(app: App) {
         width = 48f
@@ -50,6 +58,24 @@ class Player : Character() {
                 app.statDraw.color = null
             }
         })
+        app.physics.collisionHandler.addRelation(
+            this,
+            Class.forName("org.deimoscm.sprites.characters.Enemy"),
+            CollisionType(Direction.ALL, false, 0f, CollisionFunctionType.DETECTION,
+                object : OnCollision {
+                    override fun onCollision(
+                        ignore: PhysicalPositional?,
+                        ph: PhysicalPositional?
+                    ) {
+                        val enemy = ph as Enemy
+                        if (!enemiesHitDuringDash.contains(enemy) && timeSinceLastDash < dashDuration) {
+                            enemiesHitDuringDash.add(enemy)
+                            enemy.health -= 2
+                        }
+                    }
+                }
+            )
+        )
     }
 
     override fun draw(app: App) {
@@ -70,6 +96,8 @@ class Player : Character() {
             ) {
             move(75000f, app.frameProportion, up, down, left, right)
             energy -= 1
+            timeSinceLastDash = 0f
+            enemiesHitDuringDash = ArrayList()
         } else
             move(2000f, app.frameProportion, up, down, left, right)
         if (energy < maxEnergy && !waitingToGetEnergy) {
@@ -99,5 +127,6 @@ class Player : Character() {
             }
         }
         timeSinceLastMeleeAttack += app.frameProportion
+        timeSinceLastDash += app.frameProportion
     }
 }
