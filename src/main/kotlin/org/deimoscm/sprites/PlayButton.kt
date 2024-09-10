@@ -4,6 +4,7 @@ import marodi.component.World
 import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import java.awt.Color
+import javax.swing.Spring.height
 
 class PlayButton : MenuButton() {
 
@@ -13,14 +14,10 @@ class PlayButton : MenuButton() {
     }
 
     override fun onPress(app: App) {
-        app.queueRunnable(object : MarodiRunnable {
-            override fun run() {
-                app.currentWorld = World()
-                app.currentWorld.add(HardButton())
-                app.currentWorld.add(MediumButton())
-                app.currentWorld.add(EasyButton())
-            }
-        })
+        app.currentWorld = World()
+        app.currentWorld.add(HardButton())
+        app.currentWorld.add(MediumButton())
+        app.currentWorld.add(EasyButton())
     }
 
     override fun start(app: App) {

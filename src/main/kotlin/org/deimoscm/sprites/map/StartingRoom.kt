@@ -18,11 +18,7 @@ class StartingRoom : Room() {
     }
 
     override fun start(app: App) {
-        app.queueRunnable(object : MarodiRunnable {
-            override fun run() {
-                characters.add(BasicEnemy())
-            }
-        })
+        characters.add(BasicEnemy())
         hitbox = arrayOf(
             Hitbox(100f, 500f, 250f, -250f, Color.MAGENTA),
             Hitbox(250f, 100f, 100f, 250f, Color.MAGENTA),
