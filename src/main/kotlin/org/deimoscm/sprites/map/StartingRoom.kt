@@ -1,6 +1,5 @@
 package org.deimoscm.sprites.map
 
-import marodi.control.MarodiRunnable
 import marodi.physics.Direction
 import marodi.physics.Hitbox
 import org.deimoscm.App

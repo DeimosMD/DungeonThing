@@ -1,10 +1,8 @@
 package org.deimoscm.sprites
 
 import marodi.component.World
-import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import java.awt.Color
-import javax.swing.Spring.height
 
 class PlayButton : MenuButton() {
 
