@@ -40,7 +40,6 @@ class App : Game() {
                     backgroundDrawList.removeAllElements()
                     currentWorld = World()
                     currentWorld.add(player)
-                    currentWorld.add(mapManager.currentRoom)
                     physics.collisionHandler.addRelation(
                         Class.forName("org.deimoscm.sprites.map.Room"),
                         Class.forName("org.deimoscm.sprites.characters.Character"),

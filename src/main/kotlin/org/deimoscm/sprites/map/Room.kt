@@ -45,6 +45,8 @@ abstract class Room : Sprite() {
         // used to keep track of the most recent room any character has been in
         // is used when a character is not currently physically in any room
         val recentRoomMap: HashMap<Character, Room> = HashMap()
+        for (ch in characters)
+            recentRoomMap.put(ch, this)
         // chList is all characters that are in currently loaded rooms
         // removes characters from this room and adds them to chList
         val chList: ArrayList<Character> = ArrayList(characters)
@@ -85,12 +87,12 @@ abstract class Room : Sprite() {
                 characters.add(ch)
                 continue
             }
-            if (checkDoors(ch))
+            if (checkDoors(ch)) {
                 continue
+            }
             // if it's not currently in any room, it just goes in its most recent room
-            // is added into inactiveCharacters so it does not update while outside a room
-            if (recentRoomMap.contains(ch))
-                recentRoomMap.get(ch)!!.inactiveCharacters.add(ch)
+            // is added into inactiveCharacters so it does not start updating while outside the room
+            recentRoomMap[ch]!!.inactiveCharacters.add(ch)
         }
     }
 
@@ -157,6 +159,8 @@ abstract class Room : Sprite() {
         for (door in arrayOf(bottomDoor, topDoor, leftDoor, rightDoor))
             door?.ensureDestination(app)
     }
+
+    //fun removeCharacter
 
     abstract fun start(app: App)
 

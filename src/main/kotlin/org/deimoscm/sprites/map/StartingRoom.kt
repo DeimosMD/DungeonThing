@@ -20,7 +20,7 @@ class StartingRoom : Room() {
     override fun start(app: App) {
         app.queueRunnable(object : MarodiRunnable {
             override fun run() {
-                app.currentWorld.add(BasicEnemy().also {characters.add(it)})
+                characters.add(BasicEnemy())
             }
         })
         hitbox = arrayOf(

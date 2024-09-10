@@ -11,7 +11,6 @@ abstract class Character : Entity() {
     var health = 1.0
     var maxHealth = 1.0
     private var waitingToRegen = false
-    val isAlive get() = health > 0
     val isDead get() = health <= 0
     var facingLeft = false
     var directionVertical = Direction.NONE

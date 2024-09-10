@@ -1,5 +1,7 @@
 package org.deimoscm.sprites.characters
 
+import marodi.component.Positional
+import marodi.control.MarodiRunnable
 import org.deimoscm.App
 import java.awt.Color
 
@@ -26,5 +28,13 @@ class BasicEnemy : Enemy() {
             accForward(1000f, app.frameProportion)
         else
             accForward(-1000f, app.frameProportion)
+        if (isDead) {
+            val positional = this as Positional
+            app.queueRunnable(object : MarodiRunnable {
+                override fun run() {
+                    app.mapManager.currentRoom.characters.remove(positional)
+                }
+            })
+        }
     }
 }
