@@ -3,11 +3,6 @@ package org.deimoscm.sprites.characters
 import marodi.component.Drawable
 import marodi.control.Game
 import marodi.control.MarodiRunnable
-import marodi.physics.CollisionFunctionType
-import marodi.physics.CollisionType
-import marodi.physics.Direction
-import marodi.physics.OnCollision
-import marodi.physics.PhysicalPositional
 import org.deimoscm.App
 import java.awt.Color
 import java.awt.event.KeyEvent
