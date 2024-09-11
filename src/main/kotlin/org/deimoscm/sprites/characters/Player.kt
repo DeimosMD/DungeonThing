@@ -22,7 +22,6 @@ class Player : Character() {
     val meleeTimingForgiveness = 0.67f // a proportion of the cooldown, not an amount of time
     val dashDuration = 0.5f
     var timeSinceLastDash = dashDuration
-    var enemiesHitDuringDash: ArrayList<Enemy> = ArrayList()
 
     override fun start(app: App) {
         width = 48f
@@ -58,24 +57,6 @@ class Player : Character() {
                 app.statDraw.color = null
             }
         })
-        app.physics.collisionHandler.addRelation(
-            this,
-            Class.forName("org.deimoscm.sprites.characters.Enemy"),
-            CollisionType(Direction.ALL, false, 0f, CollisionFunctionType.DETECTION,
-                object : OnCollision {
-                    override fun onCollision(
-                        ignore: PhysicalPositional?,
-                        ph: PhysicalPositional?
-                    ) {
-                        val enemy = ph as Enemy
-                        if (!enemiesHitDuringDash.contains(enemy) && timeSinceLastDash < dashDuration) {
-                            enemiesHitDuringDash.add(enemy)
-                            enemy.health -= 2
-                        }
-                    }
-                }
-            )
-        )
     }
 
     override fun draw(app: App) {
@@ -97,7 +78,6 @@ class Player : Character() {
             move(75000f, app.frameProportion, up, down, left, right)
             energy -= 1
             timeSinceLastDash = 0f
-            enemiesHitDuringDash = ArrayList()
         } else
             move(2000f, app.frameProportion, up, down, left, right)
         if (energy < maxEnergy && !waitingToGetEnergy) {
@@ -109,20 +89,21 @@ class Player : Character() {
                 }
             }, 2.0)
         }
-        if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
-            if (timeSinceLastMeleeAttack > meleeAttackCooldown) {
-                var closestEnemy: Enemy? = null
-                for (ph in app.activePhysicalPositionals) {
-                    if (ph is Enemy) {
-                        if (closestEnemy == null || (distanceTo(ph) < distanceTo(closestEnemy)))
-                            closestEnemy = ph
+        for (ph in app.activePhysicalPositionals) {
+            if (ph is Enemy) {
+                if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
+                    if (timeSinceLastMeleeAttack > meleeAttackCooldown && ph.isTouchingArea(x-50, x+width+50, y-50, y+height+50)) {
+                        if (timeSinceLastDash < dashDuration && ph.isTouchingArea(x, x+width, y, y+height)) {
+                            ph.health -= 2
+                        } else
+                            ph.health -= 1
+                        timeSinceLastMeleeAttack = 0f
                     }
                 }
-                if (closestEnemy != null && distanceTo(closestEnemy) < 100) {
-                    closestEnemy.health--
-                    timeSinceLastMeleeAttack = 0f
-                }
-            } else if (timeSinceLastMeleeAttack < meleeAttackCooldown*meleeTimingForgiveness) {
+            }
+        }
+        if (app.keyHandler.isBeginPress(KeyEvent.VK_M)) {
+            if (timeSinceLastMeleeAttack < meleeAttackCooldown * meleeTimingForgiveness) {
                 timeSinceLastMeleeAttack = 0f
             }
         }
