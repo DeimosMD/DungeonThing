@@ -126,7 +126,7 @@ class Door (
             }
             app.statDraw.fillRect(0, 0, app.graphicsPanel.width, app.graphicsPanel.height)
             app.statDraw.color = null
-        } else {
+        } else if (app.player.hitbox != null && app.player.hitbox.size != 0) { // checks to avoid NullPointerException
             var dark = false
             when (direction) {
                 Direction.UP -> {
